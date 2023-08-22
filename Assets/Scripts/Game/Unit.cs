@@ -1,6 +1,7 @@
 using Graphs;
 using System.Collections;
 using System.Collections.Generic;
+using Sergei_Maltcev;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -40,7 +41,11 @@ namespace Game
             }
         }
 
-        public Team Team => m_team;
+        public Team Team
+        {
+            get => m_team;
+            set => m_team = value;
+        }
 
         public int Health => Mathf.RoundToInt(m_fHealth);
 

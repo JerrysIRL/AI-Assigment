@@ -30,7 +30,6 @@ RectTransform:
   m_Children:
   - {fileID: 2382892588908083054}
   m_Father: {fileID: 6240985670524865919}
-  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -63,13 +62,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3455727151904307384}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.25, y: 0.751, z: 1.076}
   m_LocalScale: {x: 0.4, y: 0.45, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5238090915308978417}
-  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5561432957760730282
 MeshFilter:
@@ -209,13 +208,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4170647505270580082}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.22765315, w: 0.97374237}
   m_LocalPosition: {x: -0.203, y: 1.446, z: 0}
   m_LocalScale: {x: 0.11953146, y: 0.2953144, z: 0.124011375}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5238090915308978417}
-  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 26.318}
 --- !u!33 &6590731004499905730
 MeshFilter:
@@ -316,13 +315,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4221178871538385417}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.1619809, w: 0.98679394}
   m_LocalPosition: {x: 0.186, y: 1.414, z: 0}
   m_LocalScale: {x: 0.11953146, y: 0.2953144, z: 0.124011375}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5238090915308978417}
-  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -18.644}
 --- !u!33 &5691063471372211599
 MeshFilter:
@@ -428,7 +427,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6240985670524865919}
-  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
@@ -486,7 +484,7 @@ GameObject:
   - component: {fileID: 6901311057929576710}
   - component: {fileID: 5314277297386817821}
   m_Layer: 0
-  m_Name: Unit_FirstName_LastName
+  m_Name: Unit_Sergei_Maltcev
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -499,6 +497,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6276959679974466529}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -510,7 +509,6 @@ Transform:
   - {fileID: 5581921326696698836}
   - {fileID: 3047956477207158046}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &323099602114071372
 MeshFilter:
@@ -609,7 +607,6 @@ RectTransform:
   - {fileID: 64094520368601713}
   - {fileID: 7955671662005418716}
   m_Father: {fileID: 5238090915308978417}
-  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 90}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -712,13 +709,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6880587001094950942}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5238090915308978417}
-  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!120 &6632048330500378862
 LineRenderer:
@@ -856,7 +853,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 64094520368601713}
-  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -892,7 +888,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
