@@ -1,6 +1,7 @@
 using Game;
 using System.Collections;
 using System.Collections.Generic;
+using Graphs;
 using UnityEngine;
 
 namespace Sergei_Maltcev
@@ -19,50 +20,38 @@ namespace Sergei_Maltcev
             _team = Team as Team_Sergei_Maltcev;
         }
 
+        protected override GraphUtils.Path GetPathToTarget()
+        {
+            return _team.CustomGetShortestPath(CurrentNode, TargetNode);
+        }
+
         protected override void Start()
         {
             base.Start();
 
-            StartCoroutine(StupidLogic());
+            StartCoroutine(TacticalLogic());
         }
 
-        IEnumerator StupidLogic()
+        IEnumerator TacticalLogic()
         {
             while (true)
             {
                 // wait (or take cover)
-                TargetNode = _team.GetTargetUnit()?.Node;
-                yield return new WaitForSeconds(Random.Range(1.0f, 2.0f));
+                //TargetNode = _team.GetTargetUnit()?.CurrentNode;
+                Battlefield.Node rangeTargetNode = _team.FindCoverNodeCloseToTarget(_team.GetTargetUnit());
+                if(rangeTargetNode != null)
+                {
+                    TargetNode = _team.FindCoverNodeCloseToTarget(_team.GetTargetUnit());
+                    yield return new WaitForSeconds(Random.Range(1.0f, 2.0f));
+                    
+                }
 
+                yield return new WaitForSeconds(1f);
                 // // move randomly
                 // TargetNode = Battlefield.Instance.GetRandomNode();
                 // yield return new WaitForSeconds(Random.Range(4.0f, 6.0f));
             }
         }
-        /*protected override Unit SelectTarget(List<Unit> enemiesInRange)
-        {
-            var t = Team as Team_Sergei_Maltcev;
-            Debug.Log(t);
-            Debug.Log(t.GetTargetUnit());
-            return t.GetTargetUnit(); //enemiesInRange[Random.Range(0, enemiesInRange.Count)];
-        }
-
-
-
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            var t = Team as Team_Sergei_Maltcev;
-            Debug.Log(t);
-        }
-
-        protected override void Start()
-        {
-            base.Start();
-
-
-
-        }
-    }*/
+       
     }
 }

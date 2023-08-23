@@ -4,26 +4,25 @@ using UnityEngine;
 
 namespace AI
 {
-    public class Blackboard
+    public class Blackboard : Dictionary<string, object>
     {
-        private Dictionary<string, object> m_data = new Dictionary<string, object>();
-
         #region Properties
 
-        public IEnumerable<KeyValuePair<string, object>> Items => m_data;
-
-        public int Count => m_data.Count;
+        public IEnumerable<KeyValuePair<string, object>> Items => this;
 
         #endregion
 
         public T GetValue<T>(string key, T defaultValue)
         {
             object value;
-            if (m_data.TryGetValue(key, out value))
+            if (!string.IsNullOrEmpty(key))
             {
-                if(value is T returnValue)
+                if (TryGetValue(key, out value))
                 {
-                    return returnValue;
+                    if (value is T returnValue)
+                    {
+                        return returnValue;
+                    }
                 }
             }
 
@@ -32,7 +31,28 @@ namespace AI
 
         public void SetValue<T>(string key, T value)
         {
-            m_data[key] = value;
+            if (!string.IsNullOrEmpty(key))
+            {
+                if (value == null)
+                {
+                    if (ContainsKey(key))
+                    {
+                        Remove(key);
+                    }
+                }
+                else
+                {
+                    this[key] = value;
+                }
+            }
+        }
+
+        public void RemoveValue(string key)
+        {
+            if (!string.IsNullOrEmpty(key) && ContainsKey(key))
+            {
+                Remove(key);
+            }
         }
     }
 }

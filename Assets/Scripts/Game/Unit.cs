@@ -1,7 +1,6 @@
 using Graphs;
 using System.Collections;
 using System.Collections.Generic;
-using Sergei_Maltcev;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,15 +21,15 @@ namespace Game
 
         static GameObject           sm_bloodPrefab;
 
-        const int                   MAX_HP = 3;
-        const float                 FIRE_RANGE = 10.0f;
-        const float                 FIRE_COOLDOWN_TIME = 0.5f;
-        const float                 DAMAGE = 0.1f;
-        const float                 COVER_REDUCTION = 0.5f;
+        public const int            MAX_HP = 3;
+        public const float          FIRE_RANGE = 10.0f;
+        public const float          FIRE_COOLDOWN_TIME = 0.5f;
+        public const float          DAMAGE = 0.1f;
+        public const float          COVER_REDUCTION = 0.5f;
 
         #region Properties
 
-        public Battlefield.Node Node
+        public Battlefield.Node CurrentNode
         {
             get => m_node;
             protected set
@@ -41,15 +40,11 @@ namespace Game
             }
         }
 
-        public Team Team
-        {
-            get => m_team;
-            set => m_team = value;
-        }
+        public Team Team => m_team;
 
         public int Health => Mathf.RoundToInt(m_fHealth);
 
-        protected Battlefield.Node TargetNode { get; set; }
+        public Battlefield.Node TargetNode { get; set; }
 
         public IEnumerable<Unit> Friendlies => Team.GetComponentsInChildren<Unit>();
 
@@ -93,7 +88,7 @@ namespace Game
 
         public bool CanShoot => m_currentLink == null || (m_currentLink.Source is not Node_Mud && m_currentLink.Target is not Node_Mud);
 
-        public bool InCover => !IsMoving && Battlefield.Instance.HasAnyCoverAt(Node);
+        public bool InCover => !IsMoving && Battlefield.Instance.HasAnyCoverAt(CurrentNode);
 
         #endregion
 
@@ -113,8 +108,8 @@ namespace Game
         protected virtual void Start()
         {
             // find start node
-            Node = GraphUtils.GetClosestNode<Battlefield.Node>(Battlefield.Instance, transform.position);
-            transform.position = Node.WorldPosition;
+            CurrentNode = GraphUtils.GetClosestNode<Battlefield.Node>(Battlefield.Instance, transform.position);
+            transform.position = CurrentNode.WorldPosition;
 
             // initialize health GUI
             m_health = transform.Find("Health");
@@ -138,7 +133,7 @@ namespace Game
         public void TakeDamage(Vector3 vSource)
         {
             // Cover reduction?
-            float fDamage = DAMAGE * (!IsMoving && Battlefield.Instance.InCover(Node, vSource) ? COVER_REDUCTION : 1.0f);
+            float fDamage = DAMAGE * (!IsMoving && Battlefield.Instance.InCover(CurrentNode, vSource) ? COVER_REDUCTION : 1.0f);
 
             // take some damage
             m_fHealth -= fDamage;
@@ -155,7 +150,7 @@ namespace Game
                 }
 
                 // free up node
-                Node = null;
+                CurrentNode = null;
 
                 // self destruct!
                 Destroy(gameObject);
@@ -236,16 +231,16 @@ namespace Game
 
         protected virtual GraphUtils.Path GetPathToTarget()
         {
-            return Team.GetShortestPath(Node, TargetNode);
+            return Team.GetShortestPath(CurrentNode, TargetNode);
         }
 
         private IEnumerator MoveLogic()
         {
             while (true)
             {
-                if (Node != null &&
+                if (CurrentNode != null &&
                    TargetNode != null &&
-                   TargetNode != Node)
+                   TargetNode != CurrentNode)
                 {
                     // get path
                     GraphUtils.Path path = GetPathToTarget();
@@ -254,7 +249,7 @@ namespace Game
                        path[0] is Battlefield.Link link) 
                     {
                         // move along first link
-                        Node = link.Target;
+                        CurrentNode = link.Target;
                         m_currentLink = link;
                         yield return StartCoroutine(link.MoveUnit(this));
                         m_currentLink = null;
@@ -268,9 +263,9 @@ namespace Game
                 else
                 {
                     // no target node? move towards current node center
-                    if (Node != null)
+                    if (CurrentNode != null)
                     {
-                        transform.position = Vector3.MoveTowards(transform.position, Node.WorldPosition, Time.deltaTime);
+                        transform.position = Vector3.MoveTowards(transform.position, CurrentNode.WorldPosition, Time.deltaTime);
                     }
 
                     yield return null;
