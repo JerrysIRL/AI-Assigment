@@ -43,13 +43,10 @@ namespace Sergei_Maltcev
                 {
                     TargetNode = _team.FindCoverNodeCloseToTarget(_team.GetTargetUnit());
                     yield return new WaitForSeconds(Random.Range(1.0f, 2.0f));
-                    
                 }
 
                 yield return new WaitForSeconds(1f);
-                // // move randomly
-                // TargetNode = Battlefield.Instance.GetRandomNode();
-                // yield return new WaitForSeconds(Random.Range(4.0f, 6.0f));
+                
             }
         }
        

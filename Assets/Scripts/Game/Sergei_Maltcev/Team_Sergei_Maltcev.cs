@@ -67,16 +67,34 @@ namespace Sergei_Maltcev
             return _targetUnit;
         }
 
-        
+
         public Battlefield.Node FindCoverNodeCloseToTarget(Unit targetUnit)
         {
-            if(targetUnit != null)
-             return GraphUtils.GetClosestNode<Node_Grass>(Battlefield.Instance, targetUnit.transform.position + GetSquadCenter().normalized * (Unit.FIRE_RANGE * 0.9f));
+            if (targetUnit != null)
+            {
+                Battlefield.Node temp;
+                do
+                {
+                    temp = GraphUtils.GetClosestNode<Battlefield.Node>(Battlefield.Instance, targetUnit.transform.position + GetSquadCenter().normalized * (Unit.FIRE_RANGE * 0.9f));
+                } 
+                while (Battlefield.Instance.InCover(temp, GetTargetUnit().CurrentNode));
+
+                return temp;
+            }
 
             return null;
-
         }
-        
+
+        public Battlefield.Node FindCoverNodeCloseToTargetrf(Unit targetUnit)
+        {
+            if (targetUnit != null)
+            {
+                GraphUtils.GetClosestNode<Node_Grass>(Battlefield.Instance, targetUnit.transform.position + GetSquadCenter().normalized * (Unit.FIRE_RANGE * 0.9f));
+            }
+
+            return null;
+        }
+
         public GraphUtils.Path CustomGetShortestPath(Battlefield.Node start, Battlefield.Node goal)
         {
             if (start == null ||
@@ -171,6 +189,5 @@ namespace Sergei_Maltcev
             // no path found :(
             return null;
         }
-
     }
 }
