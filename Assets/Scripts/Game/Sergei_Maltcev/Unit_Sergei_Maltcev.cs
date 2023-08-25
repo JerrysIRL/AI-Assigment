@@ -10,23 +10,17 @@ namespace Sergei_Maltcev
 {
     public class Unit_Sergei_Maltcev : Unit
     {
-        private Team_Sergei_Maltcev _team;
         private LineRenderer _lr;
+        public new Team_Sergei_Maltcev Team => base.Team as Team_Sergei_Maltcev;
 
         protected override Unit SelectTarget(List<Unit> enemiesInRange)
         {
-            return _team.GetTargetUnit(); //enemiesInRange[Random.Range(0, enemiesInRange.Count)];
+            return Team.GetTargetUnit(); //enemiesInRange[Random.Range(0, enemiesInRange.Count)];
         }
-
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            _team = Team as Team_Sergei_Maltcev;
-        }
-
+        
         protected override GraphUtils.Path GetPathToTarget()
         {
-            return _team.CustomGetShortestPath(CurrentNode, TargetNode);
+            return Team.CustomGetShortestPath(CurrentNode, TargetNode);
         }
 
         protected override void Start()
@@ -49,36 +43,33 @@ namespace Sergei_Maltcev
                 }
             }
         }
-
-        private bool CanShoot(Vector3 enemyPos)
-        {
-            return Vector3.Distance(transform.position, enemyPos) <= (Unit.FIRE_RANGE * 0.95f);
-        }
+        
 
         IEnumerator TacticalLogic()
         {
             while (true)
             {
-                if (_team.GetTargetUnit() != null
-                    && Battlefield.Instance.InCover(CurrentNode, _team.GetTargetUnit().transform.position)
-                    && CanShoot(_team.GetTargetUnit().transform.position))
+                if (Team.GetTargetUnit() != null
+                    && Battlefield.Instance.InCover(CurrentNode, Team.GetTargetUnit().transform.position)
+                    && Team.CanShoot(transform.position,Team.GetTargetUnit().transform.position))
                 {
                     Debug.Log("InCover");
-                    yield return new WaitForSeconds(2f);
+                    yield return new WaitForSeconds(1f);
                 }
                 // wait (or take cover)
-                else if (_team.GetTargetUnit() != null && !CanShoot(_team.GetTargetUnit().transform.position))
+                else if (Team.GetTargetUnit() != null && !Team.CanShoot(transform.position,Team.GetTargetUnit().transform.position))
                 {
-                    TargetNode = _team.GetNodeInShootingRange(_team.GetTargetUnit());
+                    Debug.Log("Moving");
+                    TargetNode = Team.GetNodeInShootingRange(Team.GetTargetUnit());
                     DrawLinePath();
                     yield return new WaitForSeconds(0.5f);
                 }
                 else
                 {
                     Debug.Log("SearchingForCover");
-                    TargetNode = _team.ClosestCoverNode(transform.position);
+                    TargetNode = Team.ClosestCoverNode(transform.position, this);
                     DrawLinePath();
-                    yield return new WaitForSeconds(1f);
+                    yield return new WaitForSeconds(0.5f);
                 }
             }
         }

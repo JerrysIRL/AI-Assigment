@@ -26,7 +26,6 @@ namespace Sergei_Maltcev
         {
             base.Start();
             StartCoroutine(SetTargetUnit());
-            ClosestCoverNode(GetTargetUnit().transform.position);
         }
 
         private IEnumerator SetTargetUnit()
@@ -73,48 +72,56 @@ namespace Sergei_Maltcev
         {
             if (targetUnit != null)
             {
-                Vector3 dir = (targetUnit.transform.position - transform.position).normalized;
-                return GraphUtils.GetClosestNode<Node_Grass>(Battlefield.Instance, targetUnit.transform.position + transform.position * (Unit.FIRE_RANGE * 0.9f));
-                //targetUnit.transform.position + transform.position.normalized * (Unit.FIRE_RANGE * 0.8f));
+                return GraphUtils.GetClosestNode<Node_Grass>(Battlefield.Instance,
+                    targetUnit.transform.position + GetSquadCenter().normalized * (Unit.FIRE_RANGE * 0.9f));
             }
 
             return null;
         }
 
-        public Battlefield.Node ClosestCoverNode(Vector3 startPos)
+        public Battlefield.Node ClosestCoverNode(Vector3 startPos, Unit unit)
         {
             var nodes = Battlefield.Instance.Nodes;
-            Node_Grass bestCover = null;
+            Battlefield.Node bestCover = null;
             float bestDistance = float.MaxValue;
             bool occupied = false;
-            foreach (Node_Grass gNode in nodes)
+            foreach (Battlefield.Node gNode in nodes)
             {
-                // foreach (Unit teammate in Units)
-                // {
-                //     if (teammate.CurrentNode == gNode)
-                //     {
-                //         occupied = true;
-                //         break;
-                //     }
-                // }
+                foreach (Unit teammate in Units)
+                {
+                    if (teammate.TargetNode == gNode)
+                    {
+                        occupied = true;
+                        break;
+                    }
+                }
 
-                if (gNode is Node_Mud || occupied)
+                if ( occupied)
                 {
                     continue;
                 }
 
-                if (Battlefield.Instance.InCover(gNode, GetTargetUnit().CurrentNode))
+                if (_targetUnit != null)
                 {
-                    float distance = Vector3.Distance(startPos, gNode.WorldPosition);
-                    if (distance < bestDistance)
+                    if (Battlefield.Instance.InCover(gNode, GetTargetUnit().transform.position) &&
+                        CanShoot(unit.transform.position, GetTargetUnit().transform.position))
                     {
-                        bestCover = gNode;
-                        bestDistance = distance;
+                        float distance = Vector3.Distance(startPos, gNode.WorldPosition);
+                        if (distance < bestDistance)
+                        {
+                            bestCover = gNode;
+                            bestDistance = distance;
+                        }
                     }
                 }
             }
 
             return bestCover;
+        }
+
+        public bool CanShoot(Vector3 startingPos, Vector3 enemyPos)
+        {
+            return Vector3.Distance(startingPos, enemyPos) <= (Unit.FIRE_RANGE * 0.9f);
         }
 
         public GraphUtils.Path CustomGetShortestPath(Battlefield.Node start, Battlefield.Node goal)
@@ -181,8 +188,11 @@ namespace Sergei_Maltcev
                                 target.Unit == null)
                             {
                                 //added additional cost for mud tiles so the units always can shoot :)
-                                float newDistance = current.m_fDistance + Vector3.Distance(current.WorldPosition, target.WorldPosition) + (target.AdditionalCost * 5);
-                                float newRemainingDistance = newDistance + Battlefield.Instance.Heuristic(target, start);
+                                float newDistance = current.m_fDistance +
+                                                    Vector3.Distance(current.WorldPosition, target.WorldPosition) +
+                                                    (target.AdditionalCost);
+                                float newRemainingDistance =
+                                    newDistance + Battlefield.Instance.Heuristic(target, start);
 
                                 if (open.Contains(target))
                                 {
