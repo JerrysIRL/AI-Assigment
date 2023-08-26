@@ -19,7 +19,7 @@ namespace Sergei_Maltcev
         {
             Unit targetUnit = null;
             int lowestHealth = 1000;
-            
+
             foreach (Unit enemy in enemiesInRange)
             {
                 if (enemy.Health < lowestHealth)
@@ -32,7 +32,6 @@ namespace Sergei_Maltcev
                     else
                     {
                         targetUnit = enemy;
-                        lowestHealth = enemy.Health;
                     }
                 }
             }
@@ -71,23 +70,26 @@ namespace Sergei_Maltcev
         {
             while (true)
             {
-                if (_target != null
-                    && Battlefield.Instance.InCover(CurrentNode, _target.transform.position))
+                // If target is withing range and Unit has cover. HOLD!
+                if (_target != null && Battlefield.Instance.InCover(CurrentNode, _target.transform.position))
                 {
+                    Debug.Log(_target);
                     Debug.Log("InCover");
                     yield return new WaitForSeconds(1.5f);
                 }
-                // wait (or take cover)
+                //If You have target but Cover, look for one
                 else if (_target != null)
                 {
                     Debug.Log("SearchingForCover");
                     if (!Battlefield.Instance.InCover(TargetNode, _target.transform.position))
                     {
-                       TargetNode = Team.ClosestCoverNode(transform.position, this, _target);
-                        DrawLinePath(); 
+                        TargetNode = Team.ClosestCoverNode(transform.position, this, _target);
+                        DrawLinePath();
                     }
+
                     yield return new WaitForSeconds(1f);
                 }
+                //if you are far away move forward to closest enemy
                 else
                 {
                     Debug.Log("Moving");

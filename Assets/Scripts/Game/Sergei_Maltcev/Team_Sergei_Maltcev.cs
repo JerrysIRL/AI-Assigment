@@ -46,12 +46,13 @@ namespace Sergei_Maltcev
         {
             if (targetUnit != null)
             {
-                return GraphUtils.GetClosestNode<Node_Grass>(Battlefield.Instance, targetUnit.transform.position + GetTeamCenter(this).normalized * (Unit.FIRE_RANGE));
+                return GraphUtils.GetClosestNode<Node_Grass>(Battlefield.Instance, targetUnit.transform.position + targetUnit.transform.position.normalized * (Unit.FIRE_RANGE * 0.8f));
             }
 
             return null;
         }
 
+        // Function to get closest cover to Units position
         public Battlefield.Node ClosestCoverNode(Vector3 startPos, Unit myUnit, Unit targetUnit)
         {
             Battlefield.Node bestCover = null;
@@ -61,7 +62,8 @@ namespace Sergei_Maltcev
             {
                 foreach (Unit teammate in Units)
                 {
-                    if (teammate == myUnit && teammate.TargetNode == gNode || teammate.CurrentNode == gNode)
+                    // Jump over tiles where teammates are
+                    if (teammate == myUnit || teammate.TargetNode == gNode || teammate.CurrentNode == gNode)
                     {
                         occupied = true;
                         break;
@@ -72,7 +74,7 @@ namespace Sergei_Maltcev
                 {
                     continue;
                 }
-
+                //find closest one
                 if (targetUnit != null
                     && myUnit != null
                     && Battlefield.Instance.InCover(gNode, targetUnit.transform.position))
@@ -88,13 +90,17 @@ namespace Sergei_Maltcev
 
             return bestCover;
         }
-        
 
-        public bool WithinRange(Vector3 startPos, Vector3 enemyPos)
+        private bool CheckEnemyTargetNodes(Battlefield.Node gNode, Unit target)
         {
-            return Vector3.Distance(startPos, enemyPos) <= (Unit.FIRE_RANGE * 1.1f);
-        }
+            if (!Battlefield.Instance.InCover(gNode, target.transform.position))
+            {
+                return false;
+            }
 
+            return true;
+        }
+        
 
         private List<Battlefield.Node> GetAllCoverNodes()
         {
