@@ -2,6 +2,7 @@ using Game;
 using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using Graphs;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
@@ -12,12 +13,33 @@ namespace Sergei_Maltcev
     {
         private LineRenderer _lr;
         public new Team_Sergei_Maltcev Team => base.Team as Team_Sergei_Maltcev;
+        private Unit _target;
 
         protected override Unit SelectTarget(List<Unit> enemiesInRange)
         {
-            return Team.GetTargetUnit(); //enemiesInRange[Random.Range(0, enemiesInRange.Count)];
+            Unit targetUnit = null;
+            int lowestHealth = 1000;
+            
+            foreach (Unit enemy in enemiesInRange)
+            {
+                if (enemy.Health < lowestHealth)
+                {
+                    if (!Battlefield.Instance.InCover(enemy.CurrentNode, transform.position))
+                    {
+                        targetUnit = enemy;
+                        lowestHealth = enemy.Health;
+                    }
+                    else
+                    {
+                        targetUnit = enemy;
+                        lowestHealth = enemy.Health;
+                    }
+                }
+            }
+
+            return _target = targetUnit;
         }
-        
+
         protected override GraphUtils.Path GetPathToTarget()
         {
             return Team.CustomGetShortestPath(CurrentNode, TargetNode);
@@ -43,33 +65,38 @@ namespace Sergei_Maltcev
                 }
             }
         }
-        
+
 
         IEnumerator TacticalLogic()
         {
             while (true)
             {
-                if (Team.GetTargetUnit() != null
-                    && Battlefield.Instance.InCover(CurrentNode, Team.GetTargetUnit().transform.position)
-                    && Team.CanShoot(transform.position,Team.GetTargetUnit().transform.position))
+                if (_target != null
+                    && Battlefield.Instance.InCover(CurrentNode, _target.transform.position)
+                    && Team.WithinRange(transform.position, _target.transform.position))
                 {
-                    Debug.Log("InCover");
+                    //Debug.Log("InCover");
                     yield return new WaitForSeconds(1f);
                 }
                 // wait (or take cover)
-                else if (Team.GetTargetUnit() != null && !Team.CanShoot(transform.position,Team.GetTargetUnit().transform.position))
+                else if (ClosestEnemy != null && !Team.WithinRange(transform.position, ClosestEnemy.transform.position))
                 {
-                    Debug.Log("Moving");
-                    TargetNode = Team.GetNodeInShootingRange(Team.GetTargetUnit());
+                    //Debug.Log("Moving");
+
+                    TargetNode = Team.GetNodeInShootingRange(ClosestEnemy); //Team.GetNodeInShootingRange(ClosestEnemy);
+                    //Debug.Log(TargetNode);
                     DrawLinePath();
                     yield return new WaitForSeconds(0.5f);
                 }
                 else
                 {
-                    Debug.Log("SearchingForCover");
-                    TargetNode = Team.ClosestCoverNode(transform.position, this);
-                    DrawLinePath();
-                    yield return new WaitForSeconds(0.5f);
+                    if (_target != null && !Battlefield.Instance.InCover(TargetNode, _target.transform.position))
+                    {
+                        Debug.Log("SearchingForCover");
+                        TargetNode = Team.ClosestCoverNode(transform.position, this, _target);
+                        DrawLinePath();
+                    }
+                    yield return new WaitForSeconds(1f);
                 }
             }
         }
