@@ -46,8 +46,7 @@ namespace Sergei_Maltcev
         {
             if (targetUnit != null)
             {
-                return GraphUtils.GetClosestNode<Node_Grass>(Battlefield.Instance,
-                    targetUnit.transform.position + transform.position.normalized * (Unit.FIRE_RANGE));
+                return GraphUtils.GetClosestNode<Node_Grass>(Battlefield.Instance, targetUnit.transform.position + GetTeamCenter(this).normalized * (Unit.FIRE_RANGE));
             }
 
             return null;
@@ -60,11 +59,9 @@ namespace Sergei_Maltcev
             bool occupied = false;
             foreach (Battlefield.Node gNode in CoverNodes)
             {
-                //WithinRange(myUnit.transform.position, targetUnit.transform.position))
-
                 foreach (Unit teammate in Units)
                 {
-                    if (teammate != myUnit && teammate.CurrentNode == gNode)
+                    if (teammate == myUnit && teammate.TargetNode == gNode || teammate.CurrentNode == gNode)
                     {
                         occupied = true;
                         break;
@@ -78,7 +75,7 @@ namespace Sergei_Maltcev
 
                 if (targetUnit != null
                     && myUnit != null
-                    && CheckEnemyTargetNodes(gNode, targetUnit))
+                    && Battlefield.Instance.InCover(gNode, targetUnit.transform.position))
                 {
                     float distance = Vector3.Distance(startPos, gNode.WorldPosition);
                     if (distance < bestDistance)
@@ -91,17 +88,7 @@ namespace Sergei_Maltcev
 
             return bestCover;
         }
-
-        private bool CheckEnemyTargetNodes(Battlefield.Node gNode, Unit target)
-        {
-            if (!Battlefield.Instance.InCover(gNode, target.transform.position))
-            {
-                return false;
-            }
-
-
-            return true;
-        }
+        
 
         public bool WithinRange(Vector3 startPos, Vector3 enemyPos)
         {

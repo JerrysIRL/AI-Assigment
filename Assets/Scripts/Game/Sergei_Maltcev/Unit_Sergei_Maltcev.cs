@@ -72,31 +72,28 @@ namespace Sergei_Maltcev
             while (true)
             {
                 if (_target != null
-                    && Battlefield.Instance.InCover(CurrentNode, _target.transform.position)
-                    && Team.WithinRange(transform.position, _target.transform.position))
+                    && Battlefield.Instance.InCover(CurrentNode, _target.transform.position))
                 {
-                    //Debug.Log("InCover");
-                    yield return new WaitForSeconds(1f);
+                    Debug.Log("InCover");
+                    yield return new WaitForSeconds(1.5f);
                 }
                 // wait (or take cover)
-                else if (ClosestEnemy != null && !Team.WithinRange(transform.position, ClosestEnemy.transform.position))
+                else if (_target != null)
                 {
-                    //Debug.Log("Moving");
-
-                    TargetNode = Team.GetNodeInShootingRange(ClosestEnemy); //Team.GetNodeInShootingRange(ClosestEnemy);
-                    //Debug.Log(TargetNode);
-                    DrawLinePath();
-                    yield return new WaitForSeconds(0.5f);
+                    Debug.Log("SearchingForCover");
+                    if (!Battlefield.Instance.InCover(TargetNode, _target.transform.position))
+                    {
+                       TargetNode = Team.ClosestCoverNode(transform.position, this, _target);
+                        DrawLinePath(); 
+                    }
+                    yield return new WaitForSeconds(1f);
                 }
                 else
                 {
-                    if (_target != null && !Battlefield.Instance.InCover(TargetNode, _target.transform.position))
-                    {
-                        Debug.Log("SearchingForCover");
-                        TargetNode = Team.ClosestCoverNode(transform.position, this, _target);
-                        DrawLinePath();
-                    }
-                    yield return new WaitForSeconds(1f);
+                    Debug.Log("Moving");
+                    TargetNode = Team.GetNodeInShootingRange(ClosestEnemy); //Team.GetNodeInShootingRange(ClosestEnemy);
+                    DrawLinePath();
+                    yield return new WaitForSeconds(0.5f);
                 }
             }
         }
