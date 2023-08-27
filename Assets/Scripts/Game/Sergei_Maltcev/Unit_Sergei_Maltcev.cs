@@ -73,24 +73,21 @@ namespace Sergei_Maltcev
                 // If target is withing range and Unit has cover. HOLD!
                 if (_target != null && Battlefield.Instance.InCover(CurrentNode, _target.transform.position))
                 {
-                    Debug.Log(_target);
                     Debug.Log("InCover");
                     yield return new WaitForSeconds(1.5f);
                 }
-                //If You have target but Cover, look for one
-                else if (_target != null)
+                else if (_target != null) //If You have target but Cover, look for one
                 {
-                    Debug.Log("SearchingForCover");
                     if (!Battlefield.Instance.InCover(TargetNode, _target.transform.position))
                     {
-                        TargetNode = Team.ClosestCoverNode(transform.position, this, _target);
+                        Debug.Log("SearchingForCover");
+                        TargetNode = Team.ClosestCoverNode(this, _target);
+                        Debug.Log(TargetNode);
                         DrawLinePath();
                     }
-
                     yield return new WaitForSeconds(1f);
                 }
-                //if you are far away move forward to closest enemy
-                else
+                else //if you are far away move forward to closest enemy
                 {
                     Debug.Log("Moving");
                     TargetNode = Team.GetNodeInShootingRange(ClosestEnemy); //Team.GetNodeInShootingRange(ClosestEnemy);

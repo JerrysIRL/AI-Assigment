@@ -46,14 +46,14 @@ namespace Sergei_Maltcev
         {
             if (targetUnit != null)
             {
-                return GraphUtils.GetClosestNode<Node_Grass>(Battlefield.Instance, targetUnit.transform.position + targetUnit.transform.position.normalized * (Unit.FIRE_RANGE * 0.8f));
+                return GraphUtils.GetClosestNode<Node_Grass>(Battlefield.Instance, targetUnit.transform.position + GetTeamCenter(this).normalized * (Unit.FIRE_RANGE * 0.8f));
             }
 
             return null;
         }
 
         // Function to get closest cover to Units position
-        public Battlefield.Node ClosestCoverNode(Vector3 startPos, Unit myUnit, Unit targetUnit)
+        public Battlefield.Node ClosestCoverNode(Unit myUnit, Unit targetUnit)
         {
             Battlefield.Node bestCover = null;
             float bestDistance = float.MaxValue;
@@ -62,8 +62,9 @@ namespace Sergei_Maltcev
             {
                 foreach (Unit teammate in Units)
                 {
+                    if(teammate == myUnit) {continue;}
                     // Jump over tiles where teammates are
-                    if (teammate == myUnit || teammate.TargetNode == gNode || teammate.CurrentNode == gNode)
+                    if (teammate.CurrentNode == gNode)
                     {
                         occupied = true;
                         break;
@@ -77,9 +78,9 @@ namespace Sergei_Maltcev
                 //find closest one
                 if (targetUnit != null
                     && myUnit != null
-                    && Battlefield.Instance.InCover(gNode, targetUnit.transform.position))
+                    && CheckEnemyTargetNodes(gNode, targetUnit))
                 {
-                    float distance = Vector3.Distance(startPos, gNode.WorldPosition);
+                    float distance = Vector3.Distance(myUnit.transform.position, gNode.WorldPosition);
                     if (distance < bestDistance)
                     {
                         bestCover = gNode;
