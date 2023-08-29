@@ -78,7 +78,7 @@ namespace Sergei_Maltcev
                 //find closest one
                 if (targetUnit != null
                     && myUnit != null
-                    && CheckEnemyTargetNodes(gNode, targetUnit))
+                    && CheckCover(gNode))
                 {
                     float distance = Vector3.Distance(myUnit.transform.position, gNode.WorldPosition);
                     if (distance < bestDistance)
@@ -92,11 +92,14 @@ namespace Sergei_Maltcev
             return bestCover;
         }
 
-        private bool CheckEnemyTargetNodes(Battlefield.Node gNode, Unit target)
+        private bool CheckCover(Battlefield.Node gNode)
         {
-            if (!Battlefield.Instance.InCover(gNode, target.transform.position))
+            foreach (var unit in EnemyTeam.Units)
             {
-                return false;
+                if (!Battlefield.Instance.InCover(gNode, unit.transform.position))
+                {
+                    return false;
+                }
             }
 
             return true;

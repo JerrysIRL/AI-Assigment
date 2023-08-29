@@ -17,7 +17,6 @@ namespace Sergei_Maltcev
 
         protected override Unit SelectTarget(List<Unit> enemiesInRange)
         {
-            Unit targetUnit = null;
             int lowestHealth = 1000;
 
             foreach (Unit enemy in enemiesInRange)
@@ -26,17 +25,17 @@ namespace Sergei_Maltcev
                 {
                     if (!Battlefield.Instance.InCover(enemy.CurrentNode, transform.position))
                     {
-                        targetUnit = enemy;
+                        _target = enemy;
                         lowestHealth = enemy.Health;
                     }
                     else
                     {
-                        targetUnit = enemy;
+                        _target = enemy;
                     }
                 }
             }
-
-            return _target = targetUnit;
+            Debug.Log(_target);
+            return _target;
         }
 
         protected override GraphUtils.Path GetPathToTarget()
