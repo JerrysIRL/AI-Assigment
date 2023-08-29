@@ -12,12 +12,12 @@ namespace Sergei_Maltcev
     public class Team_Sergei_Maltcev : Team
     {
         [SerializeField] private Color myFancyColor;
-        private List<Battlefield.Node> allCoverNodes = new List<Battlefield.Node>();
+        private List<Battlefield.Node> _allCoverNodes = new List<Battlefield.Node>();
 
         #region Properties
 
         public override Color Color => myFancyColor;
-        public List<Battlefield.Node> CoverNodes => allCoverNodes;
+        public List<Battlefield.Node> CoverNodes => _allCoverNodes;
 
         #endregion
 
@@ -25,7 +25,7 @@ namespace Sergei_Maltcev
         protected override void Start()
         {
             base.Start();
-            allCoverNodes = GetAllCoverNodes();
+            _allCoverNodes = GetAllCoverNodes();
         }
 
 
@@ -41,30 +41,38 @@ namespace Sergei_Maltcev
             return center;
         }
 
-
-        public Battlefield.Node GetNodeInShootingRange(Unit targetUnit)
+        // returns a node within fire range in direction of targetUnit
+        public Battlefield.Node GetNodeInShootingRange(Unit myUnit, Unit targetUnit) 
         {
             if (targetUnit != null)
             {
-                return GraphUtils.GetClosestNode<Node_Grass>(Battlefield.Instance, targetUnit.transform.position + GetTeamCenter(this).normalized * (Unit.FIRE_RANGE * 0.8f));
+                Vector3 dir = (targetUnit.transform.position - myUnit.transform.position);
+                float distance = dir.magnitude - Unit.FIRE_RANGE * 0.9f;
+                dir.Normalize();
+                return GraphUtils.GetClosestNode<Node_Grass>(Battlefield.Instance, myUnit.transform.position + (dir * distance));
             }
 
             return null;
         }
 
         // Function to get closest cover to Units position
-        public Battlefield.Node ClosestCoverNode(Unit myUnit, Unit targetUnit)
+        public Battlefield.Node ClosestCoverNode(Battlefield.Node node, Unit unit)
         {
             Battlefield.Node bestCover = null;
             float bestDistance = float.MaxValue;
             bool occupied = false;
-            foreach (Battlefield.Node gNode in CoverNodes)
+            foreach (Battlefield.Node cover in CoverNodes)
             {
+                // Jump over tiles where teammates are and yourself
                 foreach (Unit teammate in Units)
                 {
-                    if(teammate == myUnit) {continue;}
-                    // Jump over tiles where teammates are
-                    if (teammate.CurrentNode == gNode)
+                    if (teammate == unit)
+                    {
+                        continue;
+                    }
+
+                    
+                    if (cover == teammate.TargetNode || cover == teammate.CurrentNode)
                     {
                         occupied = true;
                         break;
@@ -75,15 +83,14 @@ namespace Sergei_Maltcev
                 {
                     continue;
                 }
+
                 //find closest one
-                if (targetUnit != null
-                    && myUnit != null
-                    && CheckCover(gNode))
+                if (node != null && CheckCover(cover, unit.EnemiesInRange))
                 {
-                    float distance = Vector3.Distance(myUnit.transform.position, gNode.WorldPosition);
+                    float distance = Vector3.Distance(node.WorldPosition, cover.WorldPosition);
                     if (distance < bestDistance)
                     {
-                        bestCover = gNode;
+                        bestCover = cover;
                         bestDistance = distance;
                     }
                 }
@@ -92,36 +99,42 @@ namespace Sergei_Maltcev
             return bestCover;
         }
 
-        private bool CheckCover(Battlefield.Node gNode)
+        // checks for cover from all the enemy positions
+        public bool CheckCover(Battlefield.Node gNode, IEnumerable<Unit> units)
         {
-            foreach (var unit in EnemyTeam.Units)
+            if (units != null)
             {
-                if (!Battlefield.Instance.InCover(gNode, unit.transform.position))
+                foreach (var enemyUnit in units)
                 {
-                    return false;
+                    if (gNode == enemyUnit.TargetNode || !Battlefield.Instance.InCover(gNode, enemyUnit.transform.position))
+                    {
+                        return false;
+                    }
                 }
+
+                return true;
             }
 
-            return true;
+            return false;
         }
-        
 
-        private List<Battlefield.Node> GetAllCoverNodes()
+
+        private List<Battlefield.Node> GetAllCoverNodes() // Caching all covernodes at start
         {
             var nodes = Battlefield.Instance.Nodes;
             foreach (Battlefield.Node node in nodes)
             {
                 if (Battlefield.Instance.HasAnyCoverAt(node))
                 {
-                    allCoverNodes.Add(node);
+                    _allCoverNodes.Add(node);
                 }
             }
 
-            return allCoverNodes;
+            return _allCoverNodes;
         }
 
 
-        public GraphUtils.Path CustomGetShortestPath(Battlefield.Node start, Battlefield.Node goal)
+        public GraphUtils.Path CustomGetShortestPath(Unit unit, Battlefield.Node start, Battlefield.Node goal)
         {
             if (start == null ||
                 goal == null ||
@@ -185,9 +198,7 @@ namespace Sergei_Maltcev
                                 target.Unit == null)
                             {
                                 //added additional cost for mud tiles so the units always can shoot :)
-                                float newDistance = current.m_fDistance +
-                                                    Vector3.Distance(current.WorldPosition, target.WorldPosition) +
-                                                    (target.AdditionalCost);
+                                float newDistance = current.m_fDistance + Vector3.Distance(current.WorldPosition, target.WorldPosition) + (target.AdditionalCost * 2);
                                 float newRemainingDistance =
                                     newDistance + Battlefield.Instance.Heuristic(target, start);
 

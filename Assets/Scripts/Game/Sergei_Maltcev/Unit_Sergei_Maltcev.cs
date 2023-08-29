@@ -1,6 +1,7 @@
 using Game;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Graphs;
@@ -11,14 +12,16 @@ namespace Sergei_Maltcev
 {
     public class Unit_Sergei_Maltcev : Unit
     {
-        private LineRenderer _lr;
+        [SerializeField] private bool ShowLines;
         public new Team_Sergei_Maltcev Team => base.Team as Team_Sergei_Maltcev;
+        private LineRenderer _lr;
         private Unit _target;
-
+        
+        //Deciding what enemy to attack based on health and Cover
         protected override Unit SelectTarget(List<Unit> enemiesInRange)
         {
             int lowestHealth = 1000;
-
+            
             foreach (Unit enemy in enemiesInRange)
             {
                 if (enemy.Health < lowestHealth)
@@ -34,13 +37,13 @@ namespace Sergei_Maltcev
                     }
                 }
             }
-            Debug.Log(_target);
+
             return _target;
         }
 
-        protected override GraphUtils.Path GetPathToTarget()
+        protected override GraphUtils.Path GetPathToTarget() // Overrides base A star
         {
-            return Team.CustomGetShortestPath(CurrentNode, TargetNode);
+            return Team.CustomGetShortestPath(this, CurrentNode, TargetNode);
         }
 
         protected override void Start()
@@ -50,8 +53,9 @@ namespace Sergei_Maltcev
             StartCoroutine(TacticalLogic());
         }
 
-        private void DrawLinePath()
+        private void DrawLinePath() // debug tool to see where myUnits are going
         {
+            _lr.positionCount = 0;
             var path = GetPathToTarget();
             if (path != null)
             {
@@ -64,34 +68,38 @@ namespace Sergei_Maltcev
             }
         }
 
-
+        //main AI loop
         IEnumerator TacticalLogic()
         {
             while (true)
             {
                 // If target is withing range and Unit has cover. HOLD!
-                if (_target != null && Battlefield.Instance.InCover(CurrentNode, _target.transform.position))
+                if (EnemiesInRange.Any() && Team.CheckCover(CurrentNode, EnemiesInRange))
                 {
-                    Debug.Log("InCover");
-                    yield return new WaitForSeconds(1.5f);
+                    yield return new WaitForSeconds(Random.Range(0.2f, 1f));
                 }
-                else if (_target != null) //If You have target but Cover, look for one
+                //If You have target but not Cover, look for one. But if the targetNode is in cover, continue moving
+                else if (EnemiesInRange.Any())
                 {
-                    if (!Battlefield.Instance.InCover(TargetNode, _target.transform.position))
+                    if (!Team.CheckCover(TargetNode, EnemiesInRange))
                     {
-                        Debug.Log("SearchingForCover");
-                        TargetNode = Team.ClosestCoverNode(this, _target);
-                        Debug.Log(TargetNode);
-                        DrawLinePath();
+                        TargetNode = Team.ClosestCoverNode(CurrentNode, this);
                     }
-                    yield return new WaitForSeconds(1f);
+                    yield return new WaitForSeconds(Random.Range(0.2f, 1f));
                 }
-                else //if you are far away move forward to closest enemy
+                //if you are far away move forward to closest enemy
+                else if (!EnemiesInRange.Any())
                 {
-                    Debug.Log("Moving");
-                    TargetNode = Team.GetNodeInShootingRange(ClosestEnemy); //Team.GetNodeInShootingRange(ClosestEnemy);
+                    TargetNode = Team.GetNodeInShootingRange(this, ClosestEnemy);
+                    yield return new WaitForSeconds(Random.Range(0.2f, 1f));
+                }
+                else
+                {
+                    yield return new WaitForSeconds(0.1f);
+                }
+                if (ShowLines)
+                {
                     DrawLinePath();
-                    yield return new WaitForSeconds(0.5f);
                 }
             }
         }
