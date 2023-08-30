@@ -76,16 +76,16 @@ namespace Sergei_Maltcev
                 // If target is withing range and Unit has cover. HOLD!
                 if (EnemiesInRange.Any() && Team.CheckCover(CurrentNode, EnemiesInRange))
                 {
-                    yield return new WaitForSeconds(Random.Range(0.2f, 1f));
+                    yield return new WaitForSeconds(1f);
                 }
                 //If You have target but not Cover, look for one. But if the targetNode is in cover, continue moving
-                else if (EnemiesInRange.Any())
+                else if (!Team.CheckCover(TargetNode, EnemiesInRange))
                 {
-                    if (!Team.CheckCover(TargetNode, EnemiesInRange))
+                    //if (!Team.CheckCover(TargetNode, EnemiesInRange))
                     {
-                        TargetNode = Team.ClosestCoverNode(CurrentNode, this);
+                        TargetNode = Team.ClosestCoverNode(this);
                     }
-                    yield return new WaitForSeconds(Random.Range(0.2f, 1f));
+                    yield return new WaitForSeconds(Random.Range(0.7f, 1.5f));
                 }
                 //if you are far away move forward to closest enemy
                 else if (!EnemiesInRange.Any())
